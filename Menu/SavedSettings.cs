@@ -1,5 +1,7 @@
 ﻿namespace LeagueSharp.Common
 {
+    using Newtonsoft.Json;
+
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -15,8 +17,8 @@
         /// <summary>
         ///     The loaded files collection.
         /// </summary>
-        public static Dictionary<string, Dictionary<string, byte[]>> LoadedFiles =
-            new Dictionary<string, Dictionary<string, byte[]>>();
+        public static Dictionary<string, Dictionary<string, string>> LoadedFiles =
+            new Dictionary<string, Dictionary<string, string>>();
 
         #endregion
 
@@ -34,7 +36,7 @@
         /// <returns>
         ///     The <see cref="byte" /> collection of the data.
         /// </returns>
-        public static byte[] GetSavedData(string name, string key)
+        public static string GetSavedData(string name, string key)
         {
             var dic = LoadedFiles.ContainsKey(name) ? LoadedFiles[name] : Load(name);
             return dic == null ? null : dic.ContainsKey(key) ? dic[key] : null;
@@ -49,14 +51,37 @@
         /// <returns>
         ///     The <see cref="Dictionary{TKey,TValue}" /> collection of the entry contents.
         /// </returns>
-        public static Dictionary<string, byte[]> Load(string name)
+        public static Dictionary<string, string> Load(string name)
         {
             try
             {
-                var fileName = Path.Combine(MenuSettings.MenuConfigPath, name + ".bin");
-                if (File.Exists(fileName))
+                var jsonFile = Path.Combine(MenuSettings.MenuConfigPath, name + ".json");
+                var binFile = Path.Combine(MenuSettings.MenuConfigPath, name + ".bin");
+
+                if (File.Exists(binFile))
                 {
-                    return Utils.Deserialize<Dictionary<string, byte[]>>(File.ReadAllBytes(fileName));
+                    var deserialized = Utils.Deserialize<Dictionary<string, byte[]>>(File.ReadAllBytes(binFile));
+                    var deserializedObj = new Dictionary<string, object>();
+        
+                    foreach (var keyValuePair in deserialized)
+                    {
+                        deserializedObj[keyValuePair.Key] = Utils.Deserialize<object>(keyValuePair.Value);
+                    }
+
+                    var deserializedJson = new Dictionary<string, string>();
+
+                    foreach (var keyValuePair in deserializedObj)
+                    {
+                        deserializedJson[keyValuePair.Key] = JsonConvert.SerializeObject(keyValuePair.Value);
+                    }
+
+                    File.Delete(binFile);
+                    return deserializedJson;
+                }
+
+                if (File.Exists(jsonFile))
+                {
+                    return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonFile));
                 }
             }
             catch (Exception e)
@@ -73,15 +98,15 @@
         /// <param name="name">
         ///     The name of the entry.
         /// </param>
-        /// <param name="entires">
-        ///     The entires.
+        /// <param name="entries">
+        ///     The entries.
         /// </param>
-        public static void Save(string name, Dictionary<string, byte[]> entires)
+        public static void Save(string name, Dictionary<string, string> entries)
         {
             try
             {
                 Directory.CreateDirectory(MenuSettings.MenuConfigPath);
-                File.WriteAllBytes(Path.Combine(MenuSettings.MenuConfigPath, name + ".bin"), Utils.Serialize(entires));
+                File.WriteAllText(Path.Combine(MenuSettings.MenuConfigPath, name + ".json"), JsonConvert.SerializeObject(entries, Formatting.Indented));
             }
             catch (Exception e)
             {

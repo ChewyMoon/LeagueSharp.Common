@@ -1,5 +1,9 @@
-﻿namespace LeagueSharp.Common
+﻿using Newtonsoft.Json.Serialization;
+
+namespace LeagueSharp.Common
 {
+    using Newtonsoft.Json;
+
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -322,6 +326,37 @@
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///     Deserializes an object.
+        /// </summary>
+        /// <typeparam name="T">
+        ///     The object type.
+        /// </typeparam>
+        /// <param name="arrBytes">
+        ///     The <see cref="byte" /> array.
+        /// </param>
+        /// <returns>
+        ///     The object as the given type.
+        /// </returns>
+        internal static T DeserializeJson<T>(string arrBytes)
+        {
+            return JsonConvert.DeserializeObject<T>(arrBytes);
+        }
+
+        /// <summary>
+        ///     Serializes an object.
+        /// </summary>
+        /// <param name="obj">
+        ///     The object.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="byte" /> array output.
+        /// </returns>
+        internal static string SerializeJson(object obj)
+        {
+            return obj == null ? null : JsonConvert.SerializeObject(obj, Formatting.Indented);
+        }
 
         /// <summary>
         ///     Deserializes an object.

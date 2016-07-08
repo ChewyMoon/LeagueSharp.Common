@@ -764,7 +764,7 @@
         /// <param name="dics">
         ///     The collection.
         /// </param>
-        internal void RecursiveSaveAll(ref Dictionary<string, Dictionary<string, byte[]>> dics)
+        internal void RecursiveSaveAll(ref Dictionary<string, Dictionary<string, string>> dics)
         {
             foreach (var child in this.Children.ToArray())
             {
@@ -782,12 +782,12 @@
         /// </summary>
         internal void SaveAll()
         {
-            var dic = new Dictionary<string, Dictionary<string, byte[]>>();
+            var dic = new Dictionary<string, Dictionary<string, string>>();
             this.RecursiveSaveAll(ref dic);
 
             foreach (var dictionary in dic)
             {
-                var dicToSave = SavedSettings.Load(dictionary.Key) ?? new Dictionary<string, byte[]>();
+                var dicToSave = SavedSettings.Load(dictionary.Key) ?? new Dictionary<string, string>();
 
                 foreach (var entry in dictionary.Value)
                 {

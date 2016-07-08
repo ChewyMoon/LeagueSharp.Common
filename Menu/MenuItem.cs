@@ -117,7 +117,7 @@
         /// <summary>
         ///     The serialized data.
         /// </summary>
-        private byte[] serialized;
+        private string serialized;
 
         /// <summary>
         ///     The value.
@@ -503,7 +503,7 @@
                     switch (this.ValueType)
                     {
                         case MenuValueType.KeyBind:
-                            var savedKeyValue = (KeyBind)(object)Utils.Deserialize<T>(readBytes);
+                            var savedKeyValue = (KeyBind)(object)Utils.DeserializeJson<T>(readBytes);
                             if (savedKeyValue.Type == KeyBindType.Press)
                             {
                                 savedKeyValue.Active = false;
@@ -512,13 +512,13 @@
                             newValue = (T)(object)savedKeyValue;
                             break;
                         case MenuValueType.Circle:
-                            var savedCircleValue = (Circle)(object)Utils.Deserialize<T>(readBytes);
+                            var savedCircleValue = (Circle)(object)Utils.DeserializeJson<T>(readBytes);
                             var newCircleValue = (Circle)(object)newValue;
                             savedCircleValue.Radius = newCircleValue.Radius;
                             newValue = (T)(object)savedCircleValue;
                             break;
                         case MenuValueType.Slider:
-                            var savedSliderValue = (Slider)(object)Utils.Deserialize<T>(readBytes);
+                            var savedSliderValue = (Slider)(object)Utils.DeserializeJson<T>(readBytes);
                             var newSliderValue = (Slider)(object)newValue;
                             if (savedSliderValue.MinValue == newSliderValue.MinValue
                                 && savedSliderValue.MaxValue == newSliderValue.MaxValue)
@@ -528,7 +528,7 @@
 
                             break;
                         case MenuValueType.StringList:
-                            var savedListValue = (StringList)(object)Utils.Deserialize<T>(readBytes);
+                            var savedListValue = (StringList)(object)Utils.DeserializeJson<T>(readBytes);
                             var newListValue = (StringList)(object)newValue;
                             if (savedListValue.SList.SequenceEqual(newListValue.SList))
                             {
@@ -537,7 +537,7 @@
 
                             break;
                         default:
-                            newValue = Utils.Deserialize<T>(readBytes);
+                            newValue = Utils.DeserializeJson<T>(readBytes);
                             break;
                     }
                 }
@@ -573,7 +573,7 @@
             }
 
             this.ValueSet = true;
-            this.serialized = Utils.Serialize(this.value);
+            this.serialized = Utils.SerializeJson(this.value);
             return this;
         }
 
@@ -1200,13 +1200,13 @@
         /// <param name="dics">
         ///     Data collection.
         /// </param>
-        internal void SaveToFile(ref Dictionary<string, Dictionary<string, byte[]>> dics)
+        internal void SaveToFile(ref Dictionary<string, Dictionary<string, string>> dics)
         {
             if (!this.dontSave)
             {
                 if (!dics.ContainsKey(this.SaveFileName))
                 {
-                    dics[this.SaveFileName] = new Dictionary<string, byte[]>();
+                    dics[this.SaveFileName] = new Dictionary<string, string>();
                 }
 
                 dics[this.SaveFileName][this.SaveKey] = this.serialized;

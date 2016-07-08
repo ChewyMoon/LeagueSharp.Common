@@ -13,12 +13,12 @@
         /// <summary>
         ///     The maximum value.
         /// </summary>
-        public int MaxValue;
+        public int MaxValue { get; set; }
 
         /// <summary>
         ///     The minimum value.
         /// </summary>
-        public int MinValue;
+        public int MinValue { get; set; }
 
         /// <summary>
         ///     The value.
